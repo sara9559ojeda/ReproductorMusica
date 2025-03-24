@@ -1,18 +1,18 @@
-export class Node {
-    value: number;
-    next: Node | null;
-    prev: Node | null;
+export class Node<T> {
+    value: T;
+    next: Node<T> | null;
+    prev: Node<T> | null;
 
-    constructor(value: number) {
+    constructor(value: T) {
         this.value = value;
         this.next = null;
         this.prev = null;
     }
 }
 
-export class DoublyLinkedList {
-    head: Node | null;
-    tail: Node | null;
+export class DoublyLinkedList<T> {
+    head: Node<T> | null;
+    tail: Node<T> | null;
     length: number;
 
     constructor() {
@@ -21,11 +21,10 @@ export class DoublyLinkedList {
         this.length = 0;
     }
 
-    append(value: number): void {
+    append(value: T): void {
         const newNode = new Node(value);
         if (!this.head) {
-            this.head = newNode;
-            this.tail = newNode;
+            this.head = this.tail = newNode;
         } else {
             newNode.prev = this.tail;
             if (this.tail) this.tail.next = newNode;
@@ -34,11 +33,10 @@ export class DoublyLinkedList {
         this.length++;
     }
 
-    prepend(value: number): void {
+    prepend(value: T): void {
         const newNode = new Node(value);
         if (!this.head) {
-            this.head = newNode;
-            this.tail = newNode;
+            this.head = this.tail = newNode;
         } else {
             newNode.next = this.head;
             this.head.prev = newNode;
@@ -47,61 +45,85 @@ export class DoublyLinkedList {
         this.length++;
     }
 
-    traverseToIndex(index: number): Node | null {
+    traverseToIndex(index: number): Node<T> | null {
         if (index < 0 || index >= this.length) return null;
-        let currentNode = this.head;
-        let i = 0;
-        while (i !== index && currentNode) {
-            currentNode = currentNode.next;
-            i++;
+        let currentNode: Node<T> | null;
+        if (index < this.length / 2) {
+            currentNode = this.head;
+            for (let i = 0; i < index; i++) {
+                currentNode = currentNode!.next;
+            }
+        } else {
+            currentNode = this.tail;
+            for (let i = this.length - 1; i > index; i--) {
+                currentNode = currentNode!.prev;
+            }
         }
         return currentNode;
     }
 
-    insert(value: number, index: number): void {
-        if (index === 0) {
+    insert(value: T, index: number): void {
+        if (index <= 0) {
             this.prepend(value);
-        } else if (index >= this.length) {
+            return;
+        }
+        if (index >= this.length) {
             this.append(value);
-        } else {
-            const newNode = new Node(value);
-            const leader = this.traverseToIndex(index - 1);
-            if (!leader || !leader.next) return;
-            const follower = leader.next;
-            leader.next = newNode;
-            newNode.prev = leader;
-            newNode.next = follower;
-            follower.prev = newNode;
-            this.length++;
+            return;
         }
+
+        const newNode = new Node(value);
+        const leader = this.traverseToIndex(index - 1);
+        if (!leader || !leader.next) return;
+
+        const follower = leader.next;
+        leader.next = newNode;
+        newNode.prev = leader;
+        newNode.next = follower;
+        follower.prev = newNode;
+        this.length++;
     }
 
-    remove(index: number): void {
-        if (index < 0 || index >= this.length) return;
-        if (index === 0 && this.head) {
-            this.head = this.head.next;
+    remove(index: number): Node<T> | null {
+        if (index < 0 || index >= this.length) return null;
+
+        let removedNode: Node<T> | null;
+        if (index === 0) {
+            removedNode = this.head;
+            this.head = this.head?.next || null;
             if (this.head) this.head.prev = null;
-        } else if (index === this.length - 1 && this.tail) {
-            this.tail = this.tail.prev;
-            if (this.tail) this.tail.next = null;
+            if (this.length === 1) this.tail = null;
         } else {
             const leader = this.traverseToIndex(index - 1);
-            if (!leader || !leader.next) return;
-            const nodeToRemove = leader.next;
-            const follower = nodeToRemove.next;
-            leader.next = follower;
-            if (follower) follower.prev = leader;
+            removedNode = leader?.next || null;
+            if (!removedNode) return null;
+
+            leader!.next = removedNode.next;
+            if (removedNode.next) {
+                removedNode.next.prev = leader;
+            } else {
+                this.tail = leader;
+            }
         }
+
         this.length--;
+        return removedNode;
     }
 
-    printList(): number[] {
+    printList(): T[] {
         let currentNode = this.head;
-        const result: number[] = [];
+        const result: T[] = [];
         while (currentNode) {
             result.push(currentNode.value);
             currentNode = currentNode.next;
         }
         return result;
+    }
+
+    /** 🔥 NUEVO: Método para vaciar la lista */
+    clear(): void {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
     }
 }
