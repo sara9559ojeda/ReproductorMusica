@@ -11,7 +11,6 @@ export default function MusicPlayer() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const draggedIndex = useRef<number | null>(null);
 
-    // 📂 Agregar archivos al reproductor
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files) {
@@ -24,7 +23,6 @@ export default function MusicPlayer() {
         }
     };
 
-    // 🎵 Reproducir una canción
     const playSong = (index: number) => {
         const node = list.traverseToIndex(index);
         if (node) {
@@ -37,21 +35,18 @@ export default function MusicPlayer() {
         }
     };
 
-    // ⏭ Reproducir la siguiente canción
     const playNext = () => {
         if (currentIndex !== null && currentIndex < list.length - 1) {
             playSong(currentIndex + 1);
         }
     };
 
-    // ⏮ Reproducir la canción anterior
     const playPrev = () => {
         if (currentIndex !== null && currentIndex > 0) {
             playSong(currentIndex - 1);
         }
     };
 
-    // 🗑 Eliminar una canción
     const handleRemove = (index: number) => {
         list.remove(index);
         setSongs([...list.printList()]);
@@ -67,7 +62,6 @@ export default function MusicPlayer() {
         }
     };
 
-    // 🧹 Eliminar todas las canciones
     const handleClearAll = () => {
         list.clear();
         setSongs([]);
@@ -79,7 +73,6 @@ export default function MusicPlayer() {
         }
     };
 
-    // 🏗 Drag and Drop
     const handleDragStart = (index: number) => {
         draggedIndex.current = index;
     };
@@ -102,40 +95,73 @@ export default function MusicPlayer() {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 p-6 border rounded-lg shadow-md max-w-md mx-auto mt-10 bg-white">
-            <h2 className="text-xl font-semibold">🎵 Reproductor de Música</h2>
-            <input type="file" multiple accept="audio/*" onChange={handleFileUpload} className="border px-2 py-1 rounded" />
+        <div className="flex flex-col items-center gap-6 p-8 border rounded-2xl shadow-lg max-w-2xl mx-auto my-12 bg-neutral-900 text-neutral-100">
+            <h2 className="text-2xl font-bold">Music Player</h2>
+            <div className="flex">
+                <input
+                    type="file"
+                    multiple
+                    accept="audio/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="fileUpload" />
+                <label
+                    htmlFor="fileUpload"
+                    className="border border-neutral-700 px-4 py-2 rounded-lg bg-neutral-800 text-neutral-100 hover:bg-neutral-700 transition duration-200 cursor-pointer">
+                    {songs.length > 0 ? "Add more songs" : "Select songs"}
+                </label>
+                {songs.length > 0 && (
+                    <button
+                        onClick={handleClearAll}
+                        className="flex bg-purple-950 text-white ml-7 px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200">
+                        Remove All
+                    </button>
+                )}
+            </div>
+            <div className="w-full max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-neutral-800">
+                <ul className="w-full">
+                    {songs.map((song, index) => (
+                        <li
+                            key={index}
+                            className="flex items-center my-2 justify-between border-b border-neutral-700 py-3 px-2 cursor-pointer bg-neutral-800 hover:bg-neutral-700 transition duration-200 rounded-lg"
+                            draggable="true"
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={handleDragOver}
+                            onDrop={() => handleDrop(index)}>
+                            <span className="truncate w-40 pl-4">{song.name}</span>
+                            <div className="flex gap-2 mx-2">
+                                <button
+                                    onClick={() => playSong(index)}
+                                    className="bg-purple-400 text-white px-3 py-1 rounded-lg hover:bg-purple-500 transition duration-200">
+                                    Play
+                                </button>
+                                <button
+                                    onClick={() => handleRemove(index)}
+                                    className="bg-purple-600 text-white px-3 py-1 rounded-lg hover:bg-purple-900 transition duration-200">
+                                    Delete
+                                </button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
-            {songs.length > 0 && (
-                <button onClick={handleClearAll} className="bg-red-600 text-white px-4 py-2 rounded mt-2">
-                    🗑 Eliminar todas
-                </button>
-            )}
-
-            <ul className="w-full">
-                {songs.map((song, index) => (
-                    <li key={index} className="flex items-center justify-between border-b py-2 cursor-pointer"
-                        draggable="true"
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={handleDragOver}
-                        onDrop={() => handleDrop(index)}
-                    >
-                        <span className="truncate w-32">{song.name}</span>
-                        <div className="flex gap-2">
-                            <button onClick={() => playSong(index)} className="bg-yellow-500 text-white px-2 py-1 rounded">▶</button>
-                            <button onClick={() => handleRemove(index)} className="bg-red-500 text-white px-2 py-1 rounded">❌</button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
 
             {currentSong && (
-                <div className="flex flex-col items-center">
-                    <h3 className="text-lg font-semibold">🎶 Reproduciendo:</h3>
-                    <audio ref={audioRef} controls />
-                    <div className="flex gap-2 mt-2">
-                        <button onClick={playPrev} className="bg-yellow-500 text-white px-4 py-2 rounded">⏮ Anterior</button>
-                        <button onClick={playNext} className="bg-green-500 text-white px-4 py-2 rounded">⏭ Siguiente</button>
+                <div className="flex flex-col items-center ">
+                    <h3 className="text-lg font-semibold">Now Playing</h3>
+                    <audio ref={audioRef} controls className="w-full mx-40 mt-2 " />
+                    <div className="flex gap-4 mt-4">
+                        <button
+                            onClick={playPrev}
+                            className="bg-neutral-700 text-white px-5 py-2 rounded-lg hover:bg-purple-500 transition duration-200">
+                            ﹤﹤
+                        </button>
+                        <button
+                            onClick={playNext}
+                            className="bg-neutral-700 text-white px-5 py-2 rounded-lg hover:bg-purple-500 transition duration-200">
+                            ﹥﹥
+                        </button>
                     </div>
                 </div>
             )}

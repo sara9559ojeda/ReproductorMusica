@@ -120,7 +120,7 @@ export class DoublyLinkedList<T> {
         return result;
     }
 
-    /** 🔥 NUEVO: Método para vaciar la lista */
+    
     clear(): void {
         this.head = null;
         this.tail = null;
