@@ -96,7 +96,7 @@ export default function MusicPlayer() {
 
     return (
         <div className="flex flex-col items-center gap-6 p-8 border rounded-2xl shadow-lg max-w-2xl mx-auto my-12 bg-neutral-900 text-neutral-100">
-            <h2 className="text-2xl font-bold">Music Player</h2>
+            <h2 className="text-2xl font-bold">StereoTime</h2>
             <div className="flex">
                 <input
                     type="file"
@@ -118,7 +118,7 @@ export default function MusicPlayer() {
                     </button>
                 )}
             </div>
-            <div className="w-full max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-neutral-800">
+            <div className="w-full max-h-50 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-neutral-800">
                 <ul className="w-full">
                     {songs.map((song, index) => (
                         <li
